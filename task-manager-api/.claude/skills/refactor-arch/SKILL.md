@@ -93,9 +93,21 @@ DB tables:     <tabelas/entidades encontradas>
 4. Preserve o **comportamento e os contratos de API existentes** (mesmas rotas, métodos,
    payloads de entrada/saída) — isso é refatoração, não reescrita de produto. Novas camadas
    internas podem mudar; a superfície pública da API não deve quebrar sem necessidade.
-5. Não delete os arquivos legados de forma que confunda o diff — prefira mover/recriar o
-   conteúdo nos novos arquivos e remover os antigos que foram substituídos, deixando claro
-   o que mudou.
+5. **Remova todo arquivo legado que foi substituído — isto é obrigatório, não opcional.**
+   Um arquivo que foi 100% absorvido pela nova estrutura (ex.: um `models.py`/`AppManager.js`
+   monolítico cujo conteúdo inteiro já foi migrado para `src/`) **não pode continuar existindo
+   com o conteúdo antigo** no repositório final. Se ele ainda contém o código antigo (incluindo
+   qualquer credencial hardcoded, log inseguro ou outro achado CRITICAL/HIGH do relatório da
+   Fase 2), a refatoração está incompleta, mesmo que a nova estrutura em `src/` já exista e
+   funcione — os dois códigos não podem coexistir.
+   - Prefira apagar o arquivo do disco (`rm`/delete). Se o ambiente de execução não permitir
+     apagar fisicamente (ex.: uma pasta montada que bloqueia delete/rename), use `git rm` para
+     removê-lo do controle de versão, e declare esse fato explicitamente no resumo da Fase 3
+     (não deixe implícito — avise que X arquivo(s) não puderam ser apagados do disco mas foram
+     removidos do commit via `git rm`, ou, na pior hipótese, que continuam pendentes de remoção
+     manual pelo usuário).
+   - Nunca finalize a Fase 3 com um arquivo antigo e um arquivo novo cobrindo a mesma
+     responsabilidade ao mesmo tempo no repositório.
 6. **Valide o resultado**:
    - Instale dependências se necessário e suba a aplicação (boot).
    - Confirme que ela inicia sem erros/exceptions.
@@ -103,6 +115,10 @@ DB tables:     <tabelas/entidades encontradas>
      contrato de antes (status code e formato geral do payload).
    - Rode novamente uma varredura rápida contra o catálogo de anti-patterns para confirmar que
      os achados CRITICAL/HIGH foram eliminados.
+   - **Confirme explicitamente que nenhum arquivo legado do passo 5 permanece com o conteúdo
+     antigo no repositório** (liste os arquivos removidos/substituídos e o método usado —
+     delete físico ou `git rm`). Esta checagem faz parte da validação e deve ser reportada no
+     resumo final, não pode ser pulada.
 7. Imprima um resumo final:
 
 ```
@@ -112,10 +128,15 @@ PHASE 3: REFACTORING COMPLETE
 New Project Structure:
 <árvore de diretórios>
 
+Legacy files removed:
+  ✓ <arquivo antigo 1> (deletado do disco | removido via git rm)
+  ✓ <arquivo antigo 2> (...)
+
 Validation
   ✓ Application boots without errors
   ✓ All endpoints respond correctly
   ✓ Zero anti-patterns remaining (or: lista dos que restaram e por quê)
+  ✓ Zero legacy files with old content left behind
 ================================
 ```
 

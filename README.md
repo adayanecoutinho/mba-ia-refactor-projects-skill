@@ -124,6 +124,16 @@ linguagem (ex.: "SQL concatenado por string" descreve tanto `models.py` em Pytho
   suporte total a delete/rename), e o resultado final foi copiado de volta para a pasta
   conectada ao usuário — ver seção "Como Executar" sobre como sincronizar/publicar a partir
   daqui.
+- **Arquivo legado esquecido na primeira entrega.** Na primeira rodada, `ecommerce-api-legacy/
+  src/AppManager.js` e `src/utils.js` foram corretamente recriados dentro de `src/` (God Class
+  quebrada em models/controllers/services), mas os dois arquivos originais — com a chave
+  `pk_live_...` hardcoded e o `console.log` do número do cartão — não foram removidos do
+  repositório entregue, porque o ambiente sandboxed bloqueou a exclusão física (mesmo problema
+  do item acima) e a lista de comandos `git rm` passada ao usuário não incluiu esses dois
+  arquivos por engano. Correção: o passo 5 da Fase 3 do `SKILL.md` foi reforçado para tornar a
+  remoção de arquivo legado uma etapa obrigatória e explicitamente reportada no resumo final
+  (com fallback documentado para `git rm` quando delete físico não é possível), e os dois
+  arquivos foram removidos na rodada seguinte antes deste commit.
 - **`sqlite3` (driver Node.js) exige compilação nativa via `node-gyp`**, que falhou no sandbox
   por bloqueio de download dos headers do Node. Em vez de brigar com a toolchain nativa, a
   refatoração do projeto 2 trocou o driver por `node:sqlite` (módulo nativo do próprio Node
